@@ -3,12 +3,14 @@ package com.example.insight.state
 import android.content.Context
 import android.graphics.Bitmap
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.ViewModel
+import com.example.insight.data.ClassNames
 import com.example.insight.state.helperfunctions.ImageClassificationHelper
 import com.example.insight.state.helperfunctions.ImageClassificationHelper.drawToBitmap
 import com.example.insight.state.helperfunctions.ImageClassificationHelper.findIndexOfMaxValue
@@ -39,12 +41,17 @@ class GestureViewModel : ViewModel() {
         )
     }
 
-    fun detectGesture(context: Context, canvasSize: Size) {
+    fun detectGesture(context: Context, canvasSize: Size): String {
+        Log.d("Test","1")
         val bitmap: Bitmap = drawToBitmap(
             context = context,
             canvasSize = canvasSize,
             lines = uiState.value.lines
         )
+
+        emptyLines()
+
+        Log.d("Test","2")
 
         val outputFloatArray: FloatArray = ImageClassificationHelper
             .classifyImageAndGetProbabilities(
@@ -54,15 +61,21 @@ class GestureViewModel : ViewModel() {
 
         val maxIndex: Int = findIndexOfMaxValue(outputFloatArray)
 
-        if (outputFloatArray[maxIndex] < 2) {
-//            Toast.makeText(context, "less than 2", Toast.LENGTH_SHORT).show()
+        Log.d("Test","3")
 
-            useTts(context,"Please repeat")
-        } else {
-            performAction(context, maxIndex)
-        }
+//        if (outputFloatArray[maxIndex] < 2 && false) {
+//            useTts(context,"Please repeat")
+//
+//            return null
+//        } else {
+////            Toast.makeText(context, ClassNames.classNames()[maxIndex], Toast.LENGTH_SHORT).show()
+////            Toast.makeText(context, ClassNames.classNames()[maxIndex] + ": " + outputFloatArray[maxIndex].toString(), Toast.LENGTH_SHORT).show()
+////            performAction(context, maxIndex)
+//
+//            return ClassNames.classNames()[maxIndex] + ": " + outputFloatArray[maxIndex].toString()
+//        }
 
-        emptyLines()
+        return ClassNames.classNames()[maxIndex] + ": " + outputFloatArray[maxIndex].toString()
     }
 
     private fun emptyLines() {
@@ -74,19 +87,15 @@ class GestureViewModel : ViewModel() {
     private fun performAction(context: Context, index: Int) {
         when (index) {
             0 -> {
-                useTts(context,"Redirecting to keypad")
                 IntentActionHelper.launchPhoneInterface(context)
             }
             1 -> {
-                useTts(context,"Redirecting to email")
                 IntentActionHelper.launchEmailApp(context)
             }
             2 -> {
-                useTts(context,"Redirecting to google")
                 IntentActionHelper.launchBrowser(context,"google.com")
             }
             else -> {
-                useTts(context,"Redirecting to camera")
                 IntentActionHelper.launchCamera(context)
             }
         }

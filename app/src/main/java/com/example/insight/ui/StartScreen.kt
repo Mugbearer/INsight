@@ -1,14 +1,11 @@
 package com.example.insight.ui
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -17,6 +14,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import com.example.insight.state.Line
+import com.example.insight.state.helperfunctions.useTts
 import kotlinx.coroutines.delay
 
 @Composable
@@ -26,7 +24,7 @@ fun StartScreen(
     setIsDrawing: (Boolean) -> Unit,
     addLine: (PointerInputChange, Offset) -> Unit,
     lines: List<Line>,
-    detectGesture: (Context, Size) -> Unit
+    detectGesture: (Context, Size) -> String,
 ) {
     val context: Context = LocalContext.current
 
@@ -34,11 +32,15 @@ fun StartScreen(
 
     LaunchedEffect(isDrawing) {
         if (!isDrawing) {
-            delay(1500)
-            detectGesture(context, canvasSize)
+//            setIsDetectingGesture(true)
+            delay(1200)
+            val x = detectGesture(context, canvasSize)
+            Toast.makeText(context, x, Toast.LENGTH_SHORT).show()
+            context.useTts(x)
+//            setIsDetectingGesture(false)
         }
     }
-    
+
     Canvas(
         modifier = modifier
             .pointerInput(true) {

@@ -3,18 +3,21 @@ package com.example.insight.state.helperfunctions
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import com.example.insight.ml.Model
+import com.example.insight.ml.GestureModel
 import com.example.insight.state.Line
 import org.tensorflow.lite.DataType
+import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
+import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 
@@ -25,11 +28,17 @@ object ImageClassificationHelper {
             bitmap = preprocessBitmap(bitmap)
         )
 
-        val model = Model.newInstance(context)
+        Log.d("Test2","1")
+
+        val model = GestureModel.newInstance(context)
+
+        Log.d("Test2","2")
 
         // Creates inputs for reference.
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 28, 28, 3), DataType.FLOAT32)
+        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 28, 28, 1), DataType.FLOAT32)
         inputFeature0.loadBuffer(byteBuffer)
+
+
 
         // Runs model inference and gets result.
         val outputs = model.process(inputFeature0)
@@ -47,6 +56,8 @@ object ImageClassificationHelper {
 
         val imageProcessor = ImageProcessor.Builder()
             .add(ResizeOp(28,28, ResizeOp.ResizeMethod.BILINEAR))
+            .add(NormalizeOp(0.0f,255.0f))
+            .add(TransformToGrayscaleOp())
             .build()
 
         tensorImage = imageProcessor.process(tensorImage)
