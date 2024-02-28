@@ -1,7 +1,7 @@
 package com.example.insight.data
 
 object ClassNames {
-    fun classNames(): Array<String> {
+    fun list(): Array<String> {
         return arrayOf(
             "circle",
             "square",

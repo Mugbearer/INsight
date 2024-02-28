@@ -8,15 +8,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.insight.state.GestureViewModel
+import com.example.insight.ui.EnvironmentSensingScreen
 import com.example.insight.ui.StartScreen
 import com.example.insight.ui.theme.INsightTheme
 
 enum class INsightScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
+    EnvironmentSensing(title = R.string.environment_sensing),
     Settings(title = R.string.settings),
     Gestures(title = R.string.assign_gestures),
     MainContact(title = R.string.assign_main_contact)
@@ -24,12 +27,16 @@ enum class INsightScreen(@StringRes val title: Int) {
 
 @Composable
 fun InsightApp(
-    viewModel: GestureViewModel = viewModel()
+    viewModel: GestureViewModel = viewModel(),
 ) {
+    val navController: NavHostController = rememberNavController()
+
     val uiState by viewModel.uiState.collectAsState()
 
     NavHost(
-        navController = rememberNavController(),
+        modifier = Modifier
+            .fillMaxSize(),
+        navController = navController,
         startDestination = INsightScreen.Start.name
     ) {
         composable(route = INsightScreen.Start.name) {
@@ -48,6 +55,22 @@ fun InsightApp(
                         context,
                         canvasSize
                     )
+                },
+                environmentSensingBitmap = uiState.environmentSensingBitmap,
+                setEnvironmentSensingBitmap = {
+                    viewModel.setEnvironmentSensingBitmap(it)
+                },
+                navigateToEnvironmentSensing = {
+                    navController.navigate(INsightScreen.EnvironmentSensing.name)
+                }
+            )
+        }
+        composable(route = INsightScreen.EnvironmentSensing.name) {
+            EnvironmentSensingScreen(
+                modifier = Modifier.fillMaxSize(),
+                environmentSensingBitmap = uiState.environmentSensingBitmap,
+                navigateToStartScreen = {
+                    navController.navigate(INsightScreen.Start.name)
                 }
             )
         }

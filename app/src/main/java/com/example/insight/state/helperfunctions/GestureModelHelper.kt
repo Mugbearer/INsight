@@ -22,7 +22,7 @@ import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 
 
-object ImageClassificationHelper {
+object GestureModelHelper {
     fun classifyImageAndGetProbabilities(context: Context, bitmap: Bitmap): FloatArray {
         val byteBuffer: ByteBuffer = convertBitmapToByteBuffer(
             bitmap = preprocessBitmap(bitmap)
