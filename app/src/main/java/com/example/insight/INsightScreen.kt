@@ -3,6 +3,7 @@ package com.example.insight
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +26,7 @@ enum class INsightScreen(@StringRes val title: Int) {
 fun InsightApp(
     viewModel: GestureViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
 
     NavHost(
         navController = rememberNavController(),

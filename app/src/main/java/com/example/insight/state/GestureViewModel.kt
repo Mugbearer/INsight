@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.speech.tts.TextToSpeech
 import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -15,12 +13,16 @@ import com.example.insight.state.helperfunctions.ImageClassificationHelper
 import com.example.insight.state.helperfunctions.ImageClassificationHelper.drawToBitmap
 import com.example.insight.state.helperfunctions.ImageClassificationHelper.findIndexOfMaxValue
 import com.example.insight.state.helperfunctions.IntentActionHelper
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.Locale
 
 class GestureViewModel : ViewModel() {
 
-    private val _uiState = mutableStateOf(GestureUiState())
-    val uiState: State<GestureUiState> = _uiState
+    private val _uiState = MutableStateFlow(GestureUiState())
+    val uiState: StateFlow<GestureUiState> = _uiState.asStateFlow()
 
     fun addLine(change: PointerInputChange, dragAmount: Offset) {
         change.consume()
@@ -30,15 +32,19 @@ class GestureViewModel : ViewModel() {
             end = change.position
         )
 
-        _uiState.value = _uiState.value.copy(
-            lines = _uiState.value.lines.toMutableList().apply { add(line) }
-        )
+        _uiState.update { currentState ->
+            currentState.copy(
+                lines = currentState.lines.toMutableList().apply { add(line) }
+            )
+        }
     }
 
     fun setIsDrawing(isDrawing: Boolean) {
-        _uiState.value = _uiState.value.copy(
-            isDrawing = isDrawing
-        )
+        _uiState.update { currentState ->
+            currentState.copy(
+                isDrawing = isDrawing
+            )
+        }
     }
 
     fun detectGesture(context: Context, canvasSize: Size): String {
@@ -79,9 +85,11 @@ class GestureViewModel : ViewModel() {
     }
 
     private fun emptyLines() {
-        _uiState.value = _uiState.value.copy(
-            lines = mutableListOf()
-        )
+        _uiState.update { currentState ->
+            currentState.copy(
+                lines = mutableListOf()
+            )
+        }
     }
 
     private fun performAction(context: Context, index: Int) {
