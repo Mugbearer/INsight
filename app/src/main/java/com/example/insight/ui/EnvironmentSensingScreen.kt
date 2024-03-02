@@ -16,19 +16,23 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import com.example.insight.state.helperfunctions.useTts
 
 @Composable
 fun EnvironmentSensingScreen(
     modifier: Modifier = Modifier,
     environmentSensingBitmap: Bitmap,
-    senseEnvironment: (Context) -> Unit,
-    environmentResults: MutableList<String>,
+    senseEnvironment: (Context) -> String,
+    environmentResults: String,
+    setEnvironmentResults: (String) -> Unit,
     navigateToStartScreen: () -> Unit
 ) {
     val context: Context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        senseEnvironment(context)
+        setEnvironmentResults("Loading")
+        val results = senseEnvironment(context)
+        context.useTts(results)
     }
 
     Column(
@@ -44,13 +48,6 @@ fun EnvironmentSensingScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (environmentResults.isNotEmpty()) {
-            environmentResults.forEach {
-                Text(it)
-            }
-        }
-        else {
-            Text("No results found")
-        }
+        Text(environmentResults)
     }
 }

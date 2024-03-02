@@ -6,5 +6,6 @@ data class GestureUiState(
     val isDrawing: Boolean = true,
     val lines: MutableList<Line> = mutableListOf(),
     val environmentSensingBitmap: Bitmap? = null,
-    val environmentResults: MutableList<String> = mutableListOf()
+//    val environmentResults: MutableList<String> = mutableListOf()
+    val environmentResults: String = "Loading"
 )

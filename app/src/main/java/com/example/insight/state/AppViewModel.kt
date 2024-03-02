@@ -72,12 +72,18 @@ class AppViewModel : ViewModel() {
         }
     }
 
-    fun senseEnvironment(context: Context) {
-        val results = EnvironmentSensingHelper.getEnvironmentSensingOutput(
+    fun senseEnvironment(context: Context): String {
+        var results = EnvironmentSensingHelper.getEnvironmentSensingOutput(
             context,
             uiState.value.environmentSensingBitmap!!
         )
 
+        setEnvironmentResults(results)
+
+        return results
+    }
+
+    fun setEnvironmentResults(results: String) {
         _uiState.update { currentState ->
             currentState.copy(
                 environmentResults = results
