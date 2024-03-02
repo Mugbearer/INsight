@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.ViewModel
 import com.example.insight.ml.Yolov8mFloat32
+import com.example.insight.state.helperfunctions.EnvironmentSensingHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper.drawToBitmap
 import com.example.insight.state.helperfunctions.GestureModelHelper.findIndexOfMaxValue
@@ -72,16 +73,16 @@ class AppViewModel : ViewModel() {
     }
 
     fun senseEnvironment(context: Context) {
-        val model = Yolov8mFloat32.newInstance(context)
+        val results = EnvironmentSensingHelper.getEnvironmentSensingOutput(
+            context,
+            uiState.value.environmentSensingBitmap!!
+        )
 
-        val image = TensorImage.fromBitmap(uiState.value.environmentSensingBitmap)
-
-        val outputs = model.process(image)
-        val output = outputs.javaClass
-
-        Log.d("test output",output.toString())
-
-        model.close()
+        _uiState.update { currentState ->
+            currentState.copy(
+                environmentResults = results
+            )
+        }
     }
 
     fun setEnvironmentSensingBitmap(bitmap: Bitmap?) {

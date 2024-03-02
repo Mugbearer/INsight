@@ -71,6 +71,7 @@ fun InsightApp(
                 senseEnvironment = {
                     viewModel.senseEnvironment(it)
                 },
+                environmentResults = uiState.environmentResults,
                 navigateToStartScreen = {
                     navController.navigate(INsightScreen.Start.name)
                 }

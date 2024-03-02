@@ -2,22 +2,28 @@ package com.example.insight.state.helperfunctions
 
 import android.content.Context
 import android.graphics.Bitmap
-import com.example.insight.ml.Yolov8mFloat32
-import org.tensorflow.lite.support.image.TensorImage
+import com.example.insight.yolo.Recognition
+import com.example.insight.yolo.Yolov5TFLiteDetector
+import java.lang.reflect.Array
 
 object EnvironmentSensingHelper {
-    fun getEnvironmentSensingOutput(context: Context, bitmap: Bitmap) {
-        val model = Yolov8mFloat32.newInstance(context)
+    fun getEnvironmentSensingOutput(context: Context, bitmap: Bitmap): MutableList<String> {
+        var yolov5TFLiteDetector = Yolov5TFLiteDetector()
+        yolov5TFLiteDetector.setModelFile("yolov5s-fp16.tflite")
+        yolov5TFLiteDetector.initialModel(context)
+        var recognitions: ArrayList<Recognition?> =  yolov5TFLiteDetector.detect(bitmap)
 
-        //Creates inputs for reference.
-        val image = TensorImage.fromBitmap(bitmap)
+        val results = mutableListOf<String>()
 
-        //Runs model inference and gets result.
-        val outputs = model.process(image)
-        val output = outputs.outputAsCategoryList
+        recognitions.forEach{
+            if (it != null) {
+                if(it.confidence!! > 0.4) {
+                    results.add(it.labelName!!)
+                }
+            }
+        }
 
-        //Releases model resources if no longer used.
-        model.close()
+        return results
     }
 }
 

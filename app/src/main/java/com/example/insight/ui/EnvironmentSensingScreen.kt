@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ fun EnvironmentSensingScreen(
     modifier: Modifier = Modifier,
     environmentSensingBitmap: Bitmap,
     senseEnvironment: (Context) -> Unit,
+    environmentResults: MutableList<String>,
     navigateToStartScreen: () -> Unit
 ) {
     val context: Context = LocalContext.current
@@ -42,11 +44,13 @@ fun EnvironmentSensingScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            bitmap = environmentSensingBitmap.asImageBitmap(),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
-        )
+        if (environmentResults.isNotEmpty()) {
+            environmentResults.forEach {
+                Text(it)
+            }
+        }
+        else {
+            Text("No results found")
+        }
     }
 }

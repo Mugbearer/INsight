@@ -2,6 +2,7 @@ package com.example.insight.yolo
 
 import android.graphics.RectF
 
+
 class Recognition(
     /**
      * Display name for the recognition.
