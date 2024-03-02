@@ -34,7 +34,6 @@ fun StartScreen(
     addLine: (PointerInputChange, Offset) -> Unit,
     lines: List<Line>,
     detectGesture: (Context, Size) -> Int,
-    environmentSensingBitmap: Bitmap?,
     setEnvironmentSensingBitmap: (Bitmap?) -> Unit,
     navigateToEnvironmentSensing: () -> Unit
 ) {
@@ -45,14 +44,23 @@ fun StartScreen(
     val loadImage = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicturePreview()
     ) {
-        setEnvironmentSensingBitmap(it)
-//        val resultDebug: String = (it!=null).toString()
-//        Log.d("bitmap state",resultDebug)
+        val msg = if (it == null) {
+            "bitmap is null"
+        } else {
+            "bitmap is not null"
+        }
+        Log.d("test",msg)
+        if (it != null) {
+            setEnvironmentSensingBitmap(it)
+            Log.d("test","3")
+            navigateToEnvironmentSensing()
+            Log.d("test","4")
+        }
     }
 
     LaunchedEffect(isDrawing) {
-        if (!isDrawing) {
-            delay(1200)
+        if (!isDrawing && lines.isNotEmpty()) {
+            delay(800)
             val indexOfClass: Int = withContext(Dispatchers.Default) {
                 detectGesture(context, canvasSize)
             }
@@ -67,16 +75,10 @@ fun StartScreen(
                     1 -> {
                         IntentActionHelper.launchBrowser(
                             context,
-                            "google.com"
+                            "https://google.com"
                         )
                     }
-                    2 -> {
-                        loadImage.launch()
-
-                        if (environmentSensingBitmap != null) {
-                            navigateToEnvironmentSensing()
-                        }
-                    }
+                    2 -> { loadImage.launch() }
                     3 -> {
                         IntentActionHelper.launchEmailApp(context)
                     }

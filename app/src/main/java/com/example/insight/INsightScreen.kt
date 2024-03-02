@@ -12,7 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.insight.state.GestureViewModel
+import com.example.insight.state.AppViewModel
 import com.example.insight.ui.EnvironmentSensingScreen
 import com.example.insight.ui.StartScreen
 import com.example.insight.ui.theme.INsightTheme
@@ -27,7 +27,7 @@ enum class INsightScreen(@StringRes val title: Int) {
 
 @Composable
 fun InsightApp(
-    viewModel: GestureViewModel = viewModel(),
+    viewModel: AppViewModel = viewModel(),
 ) {
     val navController: NavHostController = rememberNavController()
 
@@ -56,7 +56,6 @@ fun InsightApp(
                         canvasSize
                     )
                 },
-                environmentSensingBitmap = uiState.environmentSensingBitmap,
                 setEnvironmentSensingBitmap = {
                     viewModel.setEnvironmentSensingBitmap(it)
                 },
@@ -68,7 +67,10 @@ fun InsightApp(
         composable(route = INsightScreen.EnvironmentSensing.name) {
             EnvironmentSensingScreen(
                 modifier = Modifier.fillMaxSize(),
-                environmentSensingBitmap = uiState.environmentSensingBitmap,
+                environmentSensingBitmap = uiState.environmentSensingBitmap!!,
+                senseEnvironment = {
+                    viewModel.senseEnvironment(it)
+                },
                 navigateToStartScreen = {
                     navController.navigate(INsightScreen.Start.name)
                 }

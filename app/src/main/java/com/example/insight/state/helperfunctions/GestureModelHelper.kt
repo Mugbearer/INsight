@@ -28,17 +28,11 @@ object GestureModelHelper {
             bitmap = preprocessBitmap(bitmap)
         )
 
-        Log.d("Test2","1")
-
         val model = GestureModel.newInstance(context)
-
-        Log.d("Test2","2")
 
         // Creates inputs for reference.
         val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 28, 28, 1), DataType.FLOAT32)
         inputFeature0.loadBuffer(byteBuffer)
-
-
 
         // Runs model inference and gets result.
         val outputs = model.process(inputFeature0)
