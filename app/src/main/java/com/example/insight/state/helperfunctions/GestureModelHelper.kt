@@ -28,6 +28,7 @@ object GestureModelHelper {
             bitmap = preprocessBitmap(bitmap)
         )
 
+        //GestureModel is the final predictive model
         val model = GestureModel.newInstance(context)
 
         // Creates inputs for reference.
