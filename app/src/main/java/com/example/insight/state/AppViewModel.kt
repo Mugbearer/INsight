@@ -1,27 +1,76 @@
 package com.example.insight.state
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.lifecycle.ViewModel
-import com.example.insight.ml.Yolov8mFloat32
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.insight.INsightApplication
+import com.example.insight.data.UserPreferencesRepository
 import com.example.insight.state.helperfunctions.EnvironmentSensingHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper.drawToBitmap
 import com.example.insight.state.helperfunctions.GestureModelHelper.findIndexOfMaxValue
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import org.tensorflow.lite.support.image.TensorImage
+import kotlinx.coroutines.launch
 
-class AppViewModel : ViewModel() {
+class AppViewModel(
+    private val userPreferencesRepository: UserPreferencesRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GestureUiState())
-    val uiState: StateFlow<GestureUiState> = _uiState.asStateFlow()
+
+//    val uiState: StateFlow<GestureUiState> =
+//        userPreferencesRepository.preferredApp.map { preferredApp ->
+//            GestureUiState(preferredApp = preferredApp)
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5_000),
+//            initialValue = GestureUiState()
+//        )
+
+    val uiState: StateFlow<GestureUiState> = combine(
+        userPreferencesRepository.preferredApp,
+        userPreferencesRepository.gestureMap,
+        _uiState
+    ) { preferredApp, gestureMap, gestureUiState ->
+        gestureUiState.copy(
+            preferredApp = preferredApp,
+            gestureMap = gestureMap
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = GestureUiState()
+    )
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as INsightApplication)
+                AppViewModel(application.userPreferencesRepository)
+            }
+        }
+    }
+
+//    init {
+//        viewModelScope.launch {
+//            userPreferencesRepository.clearPreferences()
+//        }
+//    }
 
     fun addLine(change: PointerInputChange, dragAmount: Offset) {
         change.consume()
@@ -61,7 +110,7 @@ class AppViewModel : ViewModel() {
                 bitmap = bitmap
             )
 
-        return findIndexOfMaxValue(outputFloatArray)
+        return uiState.value.gestureMap[findIndexOfMaxValue(outputFloatArray)]!!
     }
 
     private fun emptyLines() {
@@ -73,7 +122,7 @@ class AppViewModel : ViewModel() {
     }
 
     fun senseEnvironment(context: Context): String {
-        var results = EnvironmentSensingHelper.getEnvironmentSensingOutput(
+        val results = EnvironmentSensingHelper.getEnvironmentSensingOutput(
             context,
             uiState.value.environmentSensingBitmap!!
         )
@@ -96,6 +145,30 @@ class AppViewModel : ViewModel() {
             currentState.copy(
                 environmentSensingBitmap = bitmap
             )
+        }
+    }
+
+    fun getMapOfApps(context: Context): Map<String, String> {
+        val applicationInfoList: List<ApplicationInfo> = context
+            .packageManager
+            .getInstalledApplications(PackageManager.GET_META_DATA)
+
+        val appMap: MutableMap<String, String> = mutableMapOf()
+
+        applicationInfoList.forEach { appInfo ->
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+            if (launchIntent != null) {
+                val appName = context.packageManager.getApplicationLabel(appInfo).toString()
+                appMap[appName] = appInfo.packageName
+            }
+        }
+
+        return appMap
+    }
+
+    fun setPreferredApp(app: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.setPreferredApp(app)
         }
     }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,20 +15,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.insight.state.AppViewModel
 import com.example.insight.ui.EnvironmentSensingScreen
+import com.example.insight.ui.PreferredAppScreen
 import com.example.insight.ui.StartScreen
 import com.example.insight.ui.theme.INsightTheme
 
 enum class INsightScreen(@StringRes val title: Int) {
     Start(title = R.string.app_name),
     EnvironmentSensing(title = R.string.environment_sensing),
-    Settings(title = R.string.settings),
+    PreferredApp(title = R.string.preferred_app),
     Gestures(title = R.string.assign_gestures),
-    MainContact(title = R.string.assign_main_contact)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun InsightApp(
-    viewModel: AppViewModel = viewModel(),
+    viewModel: AppViewModel = viewModel(
+        factory = AppViewModel.Factory
+    ),
 ) {
     val navController: NavHostController = rememberNavController()
 
@@ -41,7 +45,8 @@ fun InsightApp(
     ) {
         composable(route = INsightScreen.Start.name) {
             StartScreen(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize(),
                 isDrawing = uiState.isDrawing,
                 setIsDrawing = {
                     viewModel.setIsDrawing(it)
@@ -61,6 +66,10 @@ fun InsightApp(
                 },
                 navigateToEnvironmentSensing = {
                     navController.navigate(INsightScreen.EnvironmentSensing.name)
+                },
+                preferredApp = uiState.preferredApp,
+                navigateToPreferredApp = {
+                    navController.navigate(INsightScreen.PreferredApp.name)
                 }
             )
         }
@@ -76,7 +85,17 @@ fun InsightApp(
                     viewModel.setEnvironmentResults(it)
                 },
                 navigateToStartScreen = {
-                    navController.navigate(INsightScreen.Start.name)
+                    navController.popBackStack(INsightScreen.Start.name, inclusive = false)
+                }
+            )
+        }
+        composable(route = INsightScreen.PreferredApp.name)  {
+            PreferredAppScreen(
+                modifier = Modifier.fillMaxSize(),
+                getHashMapOfApps = viewModel::getMapOfApps,
+                setPreferredApp = {
+                    viewModel.setPreferredApp(it)
+                    navController.popBackStack(INsightScreen.Start.name, inclusive = false)
                 }
             )
         }

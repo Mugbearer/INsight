@@ -8,6 +8,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
+import androidx.compose.ui.input.key.Key.Companion.F
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.example.insight.ml.GestureModel
@@ -67,6 +68,10 @@ object GestureModelHelper {
             if (array[maxIndex] < fl) {
                 maxIndex = index
             }
+        }
+
+        if (array[maxIndex] < 0.6) {
+            return 10
         }
 
         return maxIndex

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -35,7 +36,9 @@ fun StartScreen(
     lines: List<Line>,
     detectGesture: (Context, Size) -> Int,
     setEnvironmentSensingBitmap: (Bitmap?) -> Unit,
-    navigateToEnvironmentSensing: () -> Unit
+    navigateToEnvironmentSensing: () -> Unit,
+    preferredApp: String,
+    navigateToPreferredApp: () -> Unit
 ) {
     val context: Context = LocalContext.current
 
@@ -60,30 +63,64 @@ fun StartScreen(
 
     LaunchedEffect(isDrawing) {
         if (!isDrawing && lines.isNotEmpty()) {
-            delay(800)
+            delay(500)
             val indexOfClass: Int = withContext(Dispatchers.Default) {
                 detectGesture(context, canvasSize)
             }
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, indexOfClass.toString(), Toast.LENGTH_SHORT).show()
-                context.useTts(indexOfClass.toString())
-
+//                Toast.makeText(context, indexOfClass.toString(), Toast.LENGTH_SHORT).show()
+//                context.useTts(indexOfClass.toString())
                 when (indexOfClass) {
                     0 -> {
-                        IntentActionHelper.launchPhoneInterface(context)
-                    }
-                    1 -> {
+                        context.useTts("Redirecting to google.com")
                         IntentActionHelper.launchBrowser(
                             context,
                             "https://google.com"
                         )
+
                     }
-                    2 -> { loadImage.launch() }
+                    1 -> {
+                        context.useTts("Redirecting to environment sensing")
+                        loadImage.launch()
+                    }
+                    2 -> {
+                        /*TODO: settings*/
+                    }
                     3 -> {
+                        context.useTts("Redirecting to keypad")
+                        IntentActionHelper.launchPhoneInterface(context)
+                    }
+                    4 -> {
+                        if (preferredApp != ""){
+                            context.useTts("Launching preferred app")
+                            IntentActionHelper.launchPreferredApp(
+                                context,
+                                preferredApp
+                            )
+                        }
+                        else {
+                            context.useTts("Choose your preferred app")
+                            navigateToPreferredApp()
+                        }
+                    }
+                    5 -> {
+
+                    }
+                    6 -> {
+
+                    }
+                    7 -> {
+                        context.useTts("Redirecting to email")
                         IntentActionHelper.launchEmailApp(context)
                     }
-                    else -> {
+                    8 -> {
 
+                    }
+                    9 -> {
+
+                    }
+                    else -> {
+                        context.useTts("Please repeat")
                     }
                 }
             }
@@ -95,10 +132,15 @@ fun StartScreen(
             .pointerInput(true) {
                 detectDragGestures(
                     onDragStart = { setIsDrawing(true) },
-                    onDragEnd = { setIsDrawing(false) }
+                    onDragEnd = { setIsDrawing(false) },
                 ) { change, dragAmount ->
                     addLine(change, dragAmount)
                 }
+                detectTapGestures(
+                    onDoubleTap = { navigateToPreferredApp() },
+                    onLongPress = { navigateToPreferredApp() },
+                    onTap = { navigateToPreferredApp() }
+                )
             }
     ) {
         lines.forEach { line ->

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">INsight</string>
     <string name="environment_sensing">Environment Sensing</string>
-    <string name="settings">Settings</string>
+    <string name="preferred_app">Preferred App</string>
     <string name="assign_gestures">Assign Gestures</string>
     <string name="assign_main_contact">Assign Main Contact</string>
 </resources>
