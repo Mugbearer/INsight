@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import com.example.insight.data.ClassNames
 import com.example.insight.state.Line
 import com.example.insight.state.helperfunctions.IntentActionHelper
 import com.example.insight.state.helperfunctions.useTts
@@ -38,7 +39,8 @@ fun StartScreen(
     setEnvironmentSensingBitmap: (Bitmap?) -> Unit,
     navigateToEnvironmentSensing: () -> Unit,
     preferredApp: String,
-    navigateToPreferredApp: () -> Unit
+    navigateToPreferredApp: () -> Unit,
+    navigateToAssignOldGesture: () -> Unit
 ) {
     val context: Context = LocalContext.current
 
@@ -68,8 +70,7 @@ fun StartScreen(
                 detectGesture(context, canvasSize)
             }
             withContext(Dispatchers.Main) {
-//                Toast.makeText(context, indexOfClass.toString(), Toast.LENGTH_SHORT).show()
-//                context.useTts(indexOfClass.toString())
+                Log.d("index", "$indexOfClass: ${ClassNames.list()[indexOfClass]}")
                 when (indexOfClass) {
                     0 -> {
                         context.useTts("Redirecting to google.com")
@@ -117,7 +118,8 @@ fun StartScreen(
 
                     }
                     9 -> {
-
+                        context.useTts("Please choose gesture to be changed")
+                        navigateToAssignOldGesture()
                     }
                     else -> {
                         context.useTts("Please repeat")
@@ -136,11 +138,6 @@ fun StartScreen(
                 ) { change, dragAmount ->
                     addLine(change, dragAmount)
                 }
-                detectTapGestures(
-                    onDoubleTap = { navigateToPreferredApp() },
-                    onLongPress = { navigateToPreferredApp() },
-                    onTap = { navigateToPreferredApp() }
-                )
             }
     ) {
         lines.forEach { line ->

@@ -171,4 +171,10 @@ class AppViewModel(
             userPreferencesRepository.setPreferredApp(app)
         }
     }
+
+    fun swapGestures(firstGesture: Int, secondGesture: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.swapGestures(firstGesture,secondGesture)
+        }
+    }
 }

@@ -9,9 +9,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import java.io.IOException
 
 class UserPreferencesRepository(
@@ -76,29 +75,33 @@ class UserPreferencesRepository(
         }
 
     suspend fun swapGestures(firstGesture: Int, secondGesture: Int) {
-        val firstKey = GESTURE_KEY_MAP[firstGesture] ?: error("Gesture not found")
-        val secondKey = GESTURE_KEY_MAP[secondGesture] ?: error("Gesture not found")
+        gestureMap
+            .take(1)
+            .map { gestureMap ->
+                val temp = gestureMap[firstGesture] ?: error("Gesture value not found for gesture: $firstGesture")
+                val secondValue = gestureMap[secondGesture] ?: error("Gesture value not found for gesture: $secondGesture")
 
-        dataStore.edit { preferences ->
-            val temp = preferences[firstKey] ?: error("Gesture value not found")
-            preferences[firstKey] = preferences[secondKey] ?: error("Gesture value not found")
-            preferences[secondKey] = temp
-        }
+                gestureMap[firstGesture] = secondValue
+                gestureMap[secondGesture] = temp
+
+                gestureMap
+            }
+            .collect { updatedGestureMap ->
+                dataStore.edit { preferences ->
+                    preferences[GESTURE_ZERO] = updatedGestureMap[0] ?: 0
+                    preferences[GESTURE_ONE] = updatedGestureMap[1] ?: 1
+                    preferences[GESTURE_TWO] = updatedGestureMap[2] ?: 2
+                    preferences[GESTURE_THREE] = updatedGestureMap[3] ?: 3
+                    preferences[GESTURE_FOUR] = updatedGestureMap[4] ?: 4
+                    preferences[GESTURE_FIVE] = updatedGestureMap[5] ?: 5
+                    preferences[GESTURE_SIX] = updatedGestureMap[6] ?: 6
+                    preferences[GESTURE_SEVEN] = updatedGestureMap[7] ?: 7
+                    preferences[GESTURE_EIGHT] = updatedGestureMap[8] ?: 8
+                    preferences[GESTURE_NINE] = updatedGestureMap[9] ?: 9
+                }
+            }
     }
 
-
-    private val GESTURE_KEY_MAP = mapOf(
-        0 to GESTURE_ZERO,
-        1 to GESTURE_ONE,
-        2 to GESTURE_TWO,
-        3 to GESTURE_THREE,
-        4 to GESTURE_FOUR,
-        5 to GESTURE_FIVE,
-        6 to GESTURE_SIX,
-        7 to GESTURE_SEVEN,
-        8 to GESTURE_EIGHT,
-        9 to GESTURE_NINE
-    )
 
 //    suspend fun assignGesture(indexOfOldGesture: Int, indexOfNewGesture: Int){
 //        dataStore.edit {  preferences ->
