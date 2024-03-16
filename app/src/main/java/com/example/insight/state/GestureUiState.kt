@@ -20,5 +20,9 @@ data class GestureUiState(
         7 to 7,
         8 to 8,
         9 to 9
-    )
+    ),
+    val mapOfInstalledApps: Map<String, String> = mapOf(),
+    val listOfInstalledApps: List<String> = mapOfInstalledApps.keys.toList(),
+    val indexOfSelectedApp: Int? = null,
+    val selectedApp: String? = null
 )

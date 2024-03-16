@@ -39,7 +39,7 @@ fun StartScreen(
     setEnvironmentSensingBitmap: (Bitmap?) -> Unit,
     navigateToEnvironmentSensing: () -> Unit,
     preferredApp: String,
-    navigateToPreferredApp: () -> Unit,
+    navigateToPreferredApp: (Context) -> Unit,
     navigateToAssignOldGesture: () -> Unit
 ) {
     val context: Context = LocalContext.current
@@ -101,7 +101,7 @@ fun StartScreen(
                         }
                         else {
                             context.useTts("Choose your preferred app")
-                            navigateToPreferredApp()
+                            navigateToPreferredApp(context)
                         }
                     }
                     5 -> {

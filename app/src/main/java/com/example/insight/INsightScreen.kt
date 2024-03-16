@@ -37,7 +37,6 @@ fun InsightApp(
     ),
 ) {
     val navController: NavHostController = rememberNavController()
-
     val uiState by viewModel.uiState.collectAsState()
 
     NavHost(
@@ -72,6 +71,7 @@ fun InsightApp(
                 },
                 preferredApp = uiState.preferredApp,
                 navigateToPreferredApp = {
+                    viewModel.getMapOfApps(it)
                     navController.navigate(INsightScreen.AssignPreferredApp.name)
                 },
                 navigateToAssignOldGesture = {
@@ -98,7 +98,10 @@ fun InsightApp(
         composable(route = INsightScreen.AssignPreferredApp.name) {
             PreferredAppScreen(
                 modifier = Modifier.fillMaxSize(),
-                getHashMapOfApps = viewModel::getMapOfApps,
+                listOfInstalledApps = uiState.listOfInstalledApps,
+                selectedApp = uiState.selectedApp,
+                navigateToNextButton = viewModel::navigateToNextButton,
+                navigateToPreviousButton = viewModel::navigateToPreviousButton,
                 setPreferredApp = {
                     viewModel.setPreferredApp(it)
                     navController.popBackStack(INsightScreen.Start.name, inclusive = false)
