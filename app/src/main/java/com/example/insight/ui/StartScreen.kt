@@ -83,7 +83,8 @@ fun StartScreen(
                         loadImage.launch()
                     }
                     2 -> {
-                        //TODO: settings
+                        context.useTts("Redirecting to settings")
+                        IntentActionHelper.launchSettings(context)
                     }
                     3 -> {
                         context.useTts("Redirecting to keypad")
@@ -105,10 +106,11 @@ fun StartScreen(
                         }
                     }
                     5 -> {
-                        //TODO: silent mode
+                        //TODO
                     }
                     6 -> {
-                        //TODO: go to contacts
+                        context.useTts("Redirecting to contacts")
+                        IntentActionHelper.launchContacts(context)
                     }
                     7 -> {
                         val intent = IntentActionHelper.launchPreferredAppIntent(
