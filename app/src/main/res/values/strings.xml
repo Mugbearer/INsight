@@ -2,8 +2,6 @@
     <string name="app_name">INsight</string>
     <string name="environment_sensing">Environment Sensing</string>
     <string name="assign_preferred_app">Assign Preferred App</string>
-    <string name="assign_gestures">Assign Gestures</string>
     <string name="assign_main_contact">Assign Main Contact</string>
-    <string name="assign_old_gesture">Assign Old Gesture</string>
-    <string name="assign_new_gesture">Assign New Gesture</string>
+    <string name="assign_app_to_gesture">Assign App To Gesture</string>
 </resources>

@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -14,12 +13,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.insight.INsightApplication
+import com.example.insight.data.App
 import com.example.insight.data.UserPreferencesRepository
 import com.example.insight.state.helperfunctions.EnvironmentSensingHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper
 import com.example.insight.state.helperfunctions.GestureModelHelper.drawToBitmap
 import com.example.insight.state.helperfunctions.GestureModelHelper.findIndexOfMaxValue
-import com.example.insight.state.helperfunctions.useTts
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,25 +32,12 @@ class AppViewModel(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(GestureUiState())
-
-//    val uiState: StateFlow<GestureUiState> =
-//        userPreferencesRepository.preferredApp.map { preferredApp ->
-//            GestureUiState(preferredApp = preferredApp)
-//        }
-//        .stateIn(
-//            scope = viewModelScope,
-//            started = SharingStarted.WhileSubscribed(5_000),
-//            initialValue = GestureUiState()
-//        )
-
     val uiState: StateFlow<GestureUiState> = combine(
-        userPreferencesRepository.preferredApp,
-        userPreferencesRepository.gestureMap,
+        userPreferencesRepository.preferredApps,
         _uiState
-    ) { preferredApp, gestureMap, gestureUiState ->
+    ) { preferredApps, gestureUiState ->
         gestureUiState.copy(
-            preferredApp = preferredApp,
-            gestureMap = gestureMap
+            preferredApps = preferredApps
         )
     }.stateIn(
         scope = viewModelScope,
@@ -112,7 +98,7 @@ class AppViewModel(
                 bitmap = bitmap
             )
 
-        return uiState.value.gestureMap[findIndexOfMaxValue(outputFloatArray)]!!
+        return findIndexOfMaxValue(outputFloatArray)
     }
 
     private fun emptyLines() {
@@ -155,25 +141,29 @@ class AppViewModel(
             .packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)
 
-        val mapOfInstalledApps: MutableMap<String, String> = mutableMapOf()
+        val listOfInstalledApps: MutableList<App> = mutableListOf()
 
         applicationInfoList.forEach { appInfo ->
-            val launchIntent = context.packageManager.getLaunchIntentForPackage(appInfo.packageName)
+            val packageName = appInfo.packageName
+            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
             if (launchIntent != null) {
-                val appName = context.packageManager.getApplicationLabel(appInfo).toString()
-                mapOfInstalledApps[appName] = appInfo.packageName
+                listOfInstalledApps.add(
+                    App(
+                        appName = context.packageManager.getApplicationLabel(appInfo).toString(),
+                        packageName = packageName
+                    )
+                )
             }
         }
 
         _uiState.update { currentState ->
             currentState.copy(
-                mapOfInstalledApps = mapOfInstalledApps,
-                listOfInstalledApps = mapOfInstalledApps.keys.toList()
+                listOfInstalledApps = listOfInstalledApps
             )
         }
     }
 
-    fun navigateToNextButton(): String {
+    fun navigateToNextButtonAndReturnAppName(): String {
         val newIndex = when (val oldIndex: Int? = uiState.value.indexOfSelectedApp) {
             null -> {
                 0
@@ -186,14 +176,12 @@ class AppViewModel(
             }
         }
 
-        Log.d("newIndex","newIndex: $newIndex")
-        setIndexOfSelectedApp(newIndex)
-        Log.d("newIndex","newIndex state: ${uiState.value.indexOfSelectedApp}")
+        setSelectedApp(newIndex)
 
-        return uiState.value.listOfInstalledApps[newIndex]
+        return uiState.value.listOfInstalledApps[newIndex].appName
     }
 
-    fun navigateToPreviousButton(): String {
+    fun navigateToPreviousButtonAndReturnAppName(): String {
         val maxIndex: Int = uiState.value.listOfInstalledApps.size - 1
         val newIndex = when (val oldIndex: Int? = uiState.value.indexOfSelectedApp) {
             null -> maxIndex
@@ -201,13 +189,16 @@ class AppViewModel(
             else -> oldIndex - 1
         }
 
-        Log.d("newIndex","newIndex: $newIndex")
-        setIndexOfSelectedApp(newIndex)
+        setSelectedApp(newIndex)
 
-        return uiState.value.listOfInstalledApps[newIndex]
+        return uiState.value.listOfInstalledApps[newIndex].appName
     }
 
-    private fun setIndexOfSelectedApp(index: Int) {
+    fun getSelectedApp(): App? {
+        return uiState.value.selectedApp
+    }
+
+    private fun setSelectedApp(index: Int) {
         _uiState.update { currentState ->
             currentState.copy(
                 indexOfSelectedApp = index,
@@ -216,36 +207,20 @@ class AppViewModel(
         }
     }
 
-    fun setPreferredApp(context: Context) {
-        if (uiState.value.selectedApp == null) {
-            navigateToNextButton()
-            context.useTts(uiState.value.selectedApp!!)
-        }
-        else{
-            viewModelScope.launch {
-                userPreferencesRepository.setPreferredApp(
-                    uiState.value.mapOfInstalledApps[
-                        uiState.value.listOfInstalledApps[
-                            uiState.value.indexOfSelectedApp!!
-                        ]
-                    ]!!
-                )
-
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        mapOfInstalledApps = mapOf(),
-                        listOfInstalledApps = listOf(),
-                        indexOfSelectedApp = null
-                    )
-                }
-                context.useTts("${uiState.value.selectedApp} assigned as preferred app")
-            }
-        }
-    }
-
-    fun swapGestures(firstGesture: Int, secondGesture: Int) {
+    fun setPreferredApp(gesture: Int) {
         viewModelScope.launch {
-            userPreferencesRepository.swapGestures(firstGesture,secondGesture)
+            userPreferencesRepository.setPreferredApp(
+                indexOfGesture = gesture,
+                preferredApp = uiState.value.selectedApp!!
+            )
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    listOfInstalledApps = listOf(),
+                    indexOfSelectedApp = null,
+                    selectedApp = null
+                )
+            }
         }
     }
 }

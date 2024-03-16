@@ -1,10 +1,8 @@
 package com.example.insight.ui
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -21,19 +19,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 @Composable
-fun AssignNewGesture(
+fun AssignAppToGesture(
     modifier: Modifier = Modifier,
-    oldGesture: Int,
     isDrawing: Boolean,
     setIsDrawing: (Boolean) -> Unit,
     addLine: (PointerInputChange, Offset) -> Unit,
     lines: List<Line>,
     detectGesture: (Context, Size) -> Int,
-    swapGestures: (Int, Int) -> Unit,
-    navigateToStartScreen: () -> Unit,
+    navigateToAssignPreferredApp: (Context, Int) -> Unit,
+    navigateToStartScreen: () -> Unit
 ) {
     val context: Context = LocalContext.current
-
     var canvasSize: Size = Size.Zero
 
     LaunchedEffect(isDrawing) {
@@ -42,9 +38,16 @@ fun AssignNewGesture(
             val indexOfClass: Int = withContext(Dispatchers.Default) {
                 detectGesture(context, canvasSize)
             }
-            swapGestures(oldGesture, indexOfClass)
-            context.useTts("Gesture reassigned successfully")
-            navigateToStartScreen()
+            if (listOf(4,7,8).contains(indexOfClass)){
+                context.useTts("Choose the app to be assigned")
+                navigateToAssignPreferredApp(context, indexOfClass)
+            }
+            else {
+                context.useTts(
+                    "Invalid. This is a reserved gesture. Navigating back to start screen."
+                )
+                navigateToStartScreen()
+            }
         }
     }
 

@@ -1,16 +1,12 @@
 package com.example.insight.ui
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,18 +18,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.insight.data.App
 import com.example.insight.state.helperfunctions.useTts
 
 @Composable
 fun PreferredAppScreen(
     modifier: Modifier = Modifier,
-    listOfInstalledApps: List<String>,
-    selectedApp: String?,
-    navigateToNextButton: () -> String,
-    navigateToPreviousButton: () -> String,
-    setPreferredApp: (Context) -> Unit
+    indexOfGesture: Int,
+    listOfInstalledApps: List<App>,
+    selectedApp: App?,
+    getSelectedApp: () -> App?,
+    navigateToNextButtonAndReturnAppName: () -> String,
+    navigateToPreviousButtonAndReturnAppName: () -> String,
+    setPreferredApp: (Int) -> Unit
 ) {
-    Log.d("tag", listOfInstalledApps.size.toString())
     val context: Context = LocalContext.current
 
     LazyColumn(
@@ -41,54 +39,25 @@ fun PreferredAppScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        Log.d("tap","onTap")
-                        context.useTts(navigateToNextButton())
+                        context.useTts(navigateToNextButtonAndReturnAppName())
                     },
                     onDoubleTap = {
-                        Log.d("tap","onDoubleTap")
-                        context.useTts(navigateToPreviousButton())
+                        context.useTts(navigateToPreviousButtonAndReturnAppName())
                     },
                     onLongPress = {
-                        Log.d("tap","onLongPress")
-                        setPreferredApp(context)
+                        val app: App? = getSelectedApp()
+                        if (app != null) {
+                            context.useTts("Assigning ${app.appName}")
+                            setPreferredApp(indexOfGesture)
+                        }
+                        else {
+                            context.useTts("Please select an app")
+                        }
                     }
                 )
             },
-//        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items(listOfInstalledApps) {
-//            Button(
-//                onClick = {},
-//                enabled = false,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(8.dp),
-//                colors = if (
-//                    indexOfSelectedApp != null &&
-//                    it == listOfInstalledApps[indexOfSelectedApp]
-//                ) {
-//                    ButtonDefaults.buttonColors(
-//                        containerColor = Color.Red
-//                    )
-//                }
-//                else {
-//                    ButtonDefaults.buttonColors()
-//                }
-//            ) {
-//                Text(text = it)
-//            }
-
-//            Text(
-//                text = it,
-//                color = if (
-//                    selectedApp != null &&
-//                    it == selectedApp
-//                ) {
-//                    Color.Green
-//                }
-//                else Color.Black
-//            )
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,11 +65,11 @@ fun PreferredAppScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = it,
+                    text = it.appName,
                     style = TextStyle(fontSize = 16.sp),
                     color = if (
                         selectedApp != null &&
-                        it == selectedApp
+                        it.appName == selectedApp.appName
                     ) {
                         Color.Green
                     }

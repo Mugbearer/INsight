@@ -3,13 +3,11 @@ package com.example.insight.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -19,6 +17,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import com.example.insight.data.App
 import com.example.insight.data.ClassNames
 import com.example.insight.state.Line
 import com.example.insight.state.helperfunctions.IntentActionHelper
@@ -38,9 +37,9 @@ fun StartScreen(
     detectGesture: (Context, Size) -> Int,
     setEnvironmentSensingBitmap: (Bitmap?) -> Unit,
     navigateToEnvironmentSensing: () -> Unit,
-    preferredApp: String,
-    navigateToPreferredApp: (Context) -> Unit,
-    navigateToAssignOldGesture: () -> Unit
+    preferredApps: List<App>,
+    navigateToAssignAppToGesture: () -> Unit,
+    navigateToPreferredApp: (Context, Int) -> Unit,
 ) {
     val context: Context = LocalContext.current
 
@@ -78,48 +77,72 @@ fun StartScreen(
                             context,
                             "https://google.com"
                         )
-
                     }
                     1 -> {
                         context.useTts("Redirecting to environment sensing")
                         loadImage.launch()
                     }
                     2 -> {
-                        /*TODO: settings*/
+                        //TODO: settings
                     }
                     3 -> {
                         context.useTts("Redirecting to keypad")
                         IntentActionHelper.launchPhoneInterface(context)
                     }
                     4 -> {
-                        if (preferredApp != ""){
-                            context.useTts("Launching preferred app")
-                            IntentActionHelper.launchPreferredApp(
-                                context,
-                                preferredApp
-                            )
+                        val intent = IntentActionHelper.launchPreferredAppIntent(
+                            context = context,
+                            packageName = preferredApps[0].packageName
+                        )
+
+                        if (intent != null) {
+                            context.useTts("Launching ${preferredApps[0].appName}")
+                            context.startActivity(intent)
                         }
                         else {
-                            context.useTts("Choose your preferred app")
-                            navigateToPreferredApp(context)
+                            context.useTts("Please choose an app")
+                            navigateToPreferredApp(context,4)
                         }
                     }
                     5 -> {
-
+                        //TODO: silent mode
                     }
                     6 -> {
-
+                        //TODO: go to contacts
                     }
                     7 -> {
-                        context.useTts("Redirecting to email")
-                        IntentActionHelper.launchEmailApp(context)
+                        val intent = IntentActionHelper.launchPreferredAppIntent(
+                            context = context,
+                            packageName = preferredApps[1].packageName
+                        )
+
+                        if (intent != null) {
+                            context.useTts("Launching ${preferredApps[1].appName}")
+                            context.startActivity(intent)
+                        }
+                        else {
+                            context.useTts("Please choose an app")
+                            navigateToPreferredApp(context,7)
+                        }
                     }
                     8 -> {
+                        val intent = IntentActionHelper.launchPreferredAppIntent(
+                            context = context,
+                            packageName = preferredApps[2].packageName
+                        )
 
+                        if (intent != null) {
+                            context.useTts("Launching ${preferredApps[2].appName}")
+                            context.startActivity(intent)
+                        }
+                        else {
+                            context.useTts("Please choose an app")
+                            navigateToPreferredApp(context,8)
+                        }
                     }
                     9 -> {
-                        context.useTts("Please choose gesture to be changed")
-                        navigateToAssignOldGesture()
+                        context.useTts("Choose a gesture to assign an app to")
+                        navigateToAssignAppToGesture()
                     }
                     else -> {
                         context.useTts("Please repeat")

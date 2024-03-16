@@ -2,11 +2,8 @@ package com.example.insight.state.helperfunctions
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 
 
 object IntentActionHelper {
@@ -33,17 +30,17 @@ object IntentActionHelper {
         context.startActivity(intent)
     }
 
-    fun launchPreferredApp(context: Context, packageName: String) {
+    fun launchPreferredAppIntent(context: Context, packageName: String): Intent? {
 
-        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        return context.packageManager.getLaunchIntentForPackage(packageName)
 
-        try {
-            context.startActivity(intent)
-            Log.d("app error status","success")
-        }
-        catch (e: Exception) {
-            Log.d("app error status",e.toString())
-        }
+//        try {
+//            context.startActivity(intent)
+//            Log.d("app error status","success")
+//        }
+//        catch (e: Exception) {
+//            Log.d("app error status",e.toString())
+//        }
 
 
 //        if (intent != null) {
