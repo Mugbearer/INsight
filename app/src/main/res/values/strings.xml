@@ -1,7 +1,21 @@
 <resources>
     <string name="app_name">INsight</string>
+    <string name="tutorial">Tutorial</string>
     <string name="environment_sensing">Environment Sensing</string>
     <string name="assign_preferred_app">Assign Preferred App</string>
-    <string name="assign_main_contact">Assign Main Contact</string>
     <string name="assign_app_to_gesture">Assign App To Gesture</string>
+    <string name="instructions">
+        Welcome to Insight, A Gesture-Based Accessibility and Communicative Utility App for Visually Impaired Individuals. This is a tutorial on how to use this app, double tap to skip this tutorial if you already know how to use it.
+        This app uses gestures as an input to serve as a shortcut/actions on your smartphone.
+        There are 6 reserved gestures that corresponds to important or applications that are used frequently.
+        Draw x to open the call app.
+        Draw circle to open browser.
+        Square is for environment sensing but before you draw square, point it to an area that you want to identify objects within.
+        Double vertical line is for Silent mode.
+        Now, there are 3 assignable gestures that can be used to open an app to your liking.
+        Those are double backslash, triple vertical lines, and double horizontal lines.
+        If an assignable gesture does not have assigned app in it, if it is inputted to the canvas you will be redirected to choose an application that corresponds to that gesture.
+        To reassign draw a forward slash then the assignable gesture that you want to be reassigned.
+        Would you like to repeat the instructions? Hold for yes, double tap for no.
+    </string>
 </resources>

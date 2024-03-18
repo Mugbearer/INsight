@@ -2,6 +2,7 @@ package com.example.insight.ui
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.media.AudioManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -62,6 +63,8 @@ fun StartScreen(
         }
     }
 
+    val audioManager: AudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
     LaunchedEffect(isDrawing) {
         if (!isDrawing && lines.isNotEmpty()) {
             delay(500)
@@ -101,12 +104,25 @@ fun StartScreen(
                             context.startActivity(intent)
                         }
                         else {
-                            context.useTts("Please choose an app")
                             navigateToPreferredApp(context,4)
                         }
                     }
                     5 -> {
-                        //TODO
+                        when (audioManager.ringerMode) {
+                            AudioManager.RINGER_MODE_NORMAL -> {
+                                context.useTts("Ringer mode set to vibrate")
+                                audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+                            }
+                            AudioManager.RINGER_MODE_SILENT -> {
+                                context.useTts("Ringer mode set to normal")
+                                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                            }
+                            AudioManager.RINGER_MODE_VIBRATE -> {
+                                context.useTts("Ringer mode set to normal")
+                                audioManager.ringerMode = AudioManager.RINGER_MODE_NORMAL
+                            }
+                            else -> throw IllegalStateException()
+                        }
                     }
                     6 -> {
                         context.useTts("Redirecting to contacts")
@@ -123,7 +139,6 @@ fun StartScreen(
                             context.startActivity(intent)
                         }
                         else {
-                            context.useTts("Please choose an app")
                             navigateToPreferredApp(context,7)
                         }
                     }
@@ -138,7 +153,6 @@ fun StartScreen(
                             context.startActivity(intent)
                         }
                         else {
-                            context.useTts("Please choose an app")
                             navigateToPreferredApp(context,8)
                         }
                     }

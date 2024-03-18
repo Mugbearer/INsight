@@ -3,12 +3,10 @@ package com.example.insight.state.helperfunctions
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.input.key.Key.Companion.F
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import com.example.insight.ml.GestureModel
@@ -70,7 +68,7 @@ object GestureModelHelper {
             }
         }
 
-        if (array[maxIndex] < 0.6) {
+        if (array[maxIndex] < 0.7) {
             return 10
         }
 

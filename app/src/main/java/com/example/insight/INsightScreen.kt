@@ -1,6 +1,5 @@
 package com.example.insight
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,17 +14,20 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.insight.state.AppViewModel
+import com.example.insight.state.helperfunctions.useTts
 import com.example.insight.ui.AssignAppToGesture
 import com.example.insight.ui.EnvironmentSensingScreen
 import com.example.insight.ui.PreferredAppScreen
 import com.example.insight.ui.StartScreen
+import com.example.insight.ui.TutorialScreen
 import com.example.insight.ui.theme.INsightTheme
 
-enum class INsightScreen(@StringRes val title: Int) {
-    Start(title = R.string.app_name),
-    EnvironmentSensing(title = R.string.environment_sensing),
-    AssignPreferredApp(title = R.string.assign_preferred_app),
-    AssignAppToGesture(title = R.string.assign_app_to_gesture)
+enum class INsightScreen() {
+    Tutorial,
+    Start,
+    EnvironmentSensing,
+    AssignPreferredApp,
+    AssignAppToGesture
 }
 
 @Composable
@@ -41,8 +43,17 @@ fun InsightApp(
         modifier = Modifier
             .fillMaxSize(),
         navController = navController,
-        startDestination = INsightScreen.Start.name
+        startDestination = INsightScreen.Tutorial.name
     ) {
+        composable(route = INsightScreen.Tutorial.name) {
+            TutorialScreen(
+                modifier = Modifier.fillMaxSize(),
+                navigateToStartScreen = {
+                    it.useTts("Please perform gesture")
+                    navController.navigate(INsightScreen.Start.name)
+                }
+            )
+        }
         composable(route = INsightScreen.Start.name) {
             StartScreen(
                 modifier = Modifier
@@ -70,6 +81,9 @@ fun InsightApp(
                     navController.navigate(INsightScreen.AssignAppToGesture.name)
                 },
                 navigateToPreferredApp = { context, indexOfGesture ->
+                    context.useTts(
+                        "Please choose an app. Tap to navigate next, double tap to navigate back. Long press to select app"
+                    )
                     viewModel.getMapOfApps(context = context)
                     navController.navigate(
                         INsightScreen.AssignPreferredApp.name + "/$indexOfGesture"
@@ -102,6 +116,9 @@ fun InsightApp(
                 lines = uiState.lines,
                 detectGesture = viewModel::detectGesture,
                 navigateToAssignPreferredApp = { context, indexOfGesture ->
+                    context.useTts(
+                        "Please choose an app. Tap to navigate next, double tap to navigate back. Long press to select app"
+                    )
                     viewModel.getMapOfApps(context = context)
                     navController.navigate(
                         INsightScreen.AssignPreferredApp.name + "/$indexOfGesture"
