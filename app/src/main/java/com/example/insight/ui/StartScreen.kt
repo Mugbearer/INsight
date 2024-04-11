@@ -72,7 +72,12 @@ fun StartScreen(
                 detectGesture(context, canvasSize)
             }
             withContext(Dispatchers.Main) {
-                Log.d("index", "$indexOfClass: ${ClassNames.list()[indexOfClass]}")
+                try {
+                    Log.d("index", "$indexOfClass: ${ClassNames.list()[indexOfClass]}")
+                }
+                catch (e: Exception) {
+                    Log.d("index", "$indexOfClass: not confident")
+                }
                 when (indexOfClass) {
                     0 -> {
                         context.useTts("Redirecting to google.com")

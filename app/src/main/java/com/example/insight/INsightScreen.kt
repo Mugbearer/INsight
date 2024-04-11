@@ -94,7 +94,6 @@ fun InsightApp(
         composable(route = INsightScreen.EnvironmentSensing.name) {
             EnvironmentSensingScreen(
                 modifier = Modifier.fillMaxSize(),
-                environmentSensingBitmap = uiState.environmentSensingBitmap!!,
                 senseEnvironment = {
                     viewModel.senseEnvironment(it)
                 },

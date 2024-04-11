@@ -39,7 +39,7 @@ fun TutorialScreen(
             if (it == TextToSpeech.SUCCESS) {
                 textToSpeech?.let { txtToSpeech ->
                     txtToSpeech.language = Locale.US
-                    txtToSpeech.setSpeechRate(1.0f)
+                    txtToSpeech.setSpeechRate(0.8f)
                     txtToSpeech.speak(
                         instructions,
                         TextToSpeech.QUEUE_ADD,
