@@ -17,13 +17,14 @@ import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
+import org.tensorflow.lite.support.image.ops.TransformToGrayscaleOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.nio.ByteBuffer
 
 class GestureHandler {
-    suspend fun getIndexOfResult(context: Context, canvasSize: Size, lines: List<Line>): Int {
-        val bitmap: Bitmap = drawToBitmap(context, canvasSize, lines)
-        val byteBuffer: ByteBuffer = getByteBufferFromBitmap(bitmap)
+    suspend fun getIndexOfResult(context: Context, bitmap: Bitmap): Int {
+        val newBitmap = preprocessBitmap(bitmap)
+        val byteBuffer: ByteBuffer = getByteBufferFromBitmap(newBitmap)
         val floatArrayOfResults: FloatArray = getFloatArrayOfResults(context, byteBuffer)
         val findIndexOfMaxValue: Int = getIndexOfMaxValue(floatArrayOfResults)
 
@@ -102,6 +103,7 @@ class GestureHandler {
         val imageProcessor = ImageProcessor.Builder()
             .add(ResizeOp(28,28, ResizeOp.ResizeMethod.BILINEAR))
             .add(NormalizeOp(0.0f,255.0f))
+            .add(TransformToGrayscaleOp())
             .build()
 
         tensorImage = imageProcessor.process(tensorImage)

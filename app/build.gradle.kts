@@ -62,7 +62,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.gpu)
-    implementation(libs.tensorflow.lite.support)
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
     implementation(libs.tensorflow.lite.metadata)
     implementation(libs.core.ktx)
     testImplementation(libs.junit)

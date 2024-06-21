@@ -2,6 +2,8 @@ package com.example.insight.presentation.ui.shared
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -26,11 +28,13 @@ enum class InsightScreens {
 
 @Composable
 fun InsightApp(
-    preferencesViewModel: PreferencesViewModel = viewModel(
+    viewModel: PreferencesViewModel = viewModel(
         factory = PreferencesViewModel.Factory
     )
 ) {
     val navController: NavHostController = rememberNavController()
+
+    val uiState by viewModel.uiState.collectAsState()
 
     NavHost(
         modifier = Modifier
@@ -54,6 +58,7 @@ fun InsightApp(
             DrawingScreen(
                 modifier = Modifier
                     .fillMaxSize(),
+                preferredApps = uiState.preferredApps,
                 navigateToEnvironmentSensingScreen = {
                     navController.navigate(InsightScreens.EnvironmentSensing.name)
                 },
@@ -78,9 +83,15 @@ fun InsightApp(
             ChooseGestureScreen(
                 modifier = Modifier
                     .fillMaxSize(),
+                navigateToDrawingScreen = {
+                    navController.popBackStack(
+                        route = InsightScreens.Drawing.name,
+                        inclusive = false
+                    )
+                },
                 navigateToAssignPreferredAppScreen = { indexOfGesture ->
                     navController.navigate(
-                        InsightScreens.AssignPreferredApp.name + indexOfGesture.toString()
+                        InsightScreens.AssignPreferredApp.name + "/$indexOfGesture"
                     )
                 }
             )
@@ -94,7 +105,19 @@ fun InsightApp(
             )
         ) {
             AssignPreferredAppScreen(
-                indexOfGesture = it.arguments!!.getInt("index_of_gesture")
+                getInstalledApps = viewModel::getInstalledApps,
+                setPreferredApp = { preferredApp: App ->
+                    viewModel.setPreferredApp(
+                        indexOfGesture = it.arguments!!.getInt("index_of_gesture"),
+                        preferredApp = preferredApp
+                    )
+                },
+                navigateToDrawingScreen = {
+                    navController.popBackStack(
+                        route = InsightScreens.Drawing.name,
+                        inclusive = false
+                    )
+                }
             )
         }
     }

@@ -28,16 +28,17 @@ fun TutorialScreen(
     navigateToDrawingScreen: () -> Unit
 ) {
     val context: Context = LocalContext.current
+
     val instructions: String =  stringResource(id = R.string.tutorial)
 
-    var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
+    lateinit var textToSpeech: TextToSpeech
 
     LaunchedEffect(Unit) {
         textToSpeech = TextToSpeech(
             context
         ) {
             if (it == TextToSpeech.SUCCESS) {
-                textToSpeech?.let { txtToSpeech ->
+                textToSpeech.let { txtToSpeech ->
                     txtToSpeech.language = Locale.US
                     txtToSpeech.setSpeechRate(0.8f)
                     txtToSpeech.speak(
@@ -51,18 +52,25 @@ fun TutorialScreen(
         }
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+    }
+
     Column(
         modifier = modifier
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
                         Log.d("onDoubleTap","onDoubleTap")
-                        textToSpeech?.stop() // Stop TTS on double tap
+                        textToSpeech.stop() // Stop TTS on double tap
                         navigateToDrawingScreen()
                     },
                     onLongPress = {
                         Log.d("onLongPress","onLongPress")
-                        textToSpeech?.speak(
+                        textToSpeech.speak(
                             instructions,
                             TextToSpeech.QUEUE_ADD,
                             null,
@@ -74,13 +82,6 @@ fun TutorialScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = instructions)
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            textToSpeech?.stop()
-            textToSpeech?.shutdown()
-        }
+        Text(instructions)
     }
 }

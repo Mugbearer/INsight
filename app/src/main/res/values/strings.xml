@@ -14,4 +14,7 @@
         To reassign draw a forward slash then the assignable gesture that you want to be reassigned.
         Would you like to repeat the instructions? Hold for yes, double tap for no.
     </string>
+    <string name="control_instructions">
+        In choosing your preferred app, tap to navigate to the next app. Double tap to navigate to the previous app. Press and hold to assign the currently selected app as your preferred app.
+    </string>
 </resources>
