@@ -9,14 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun Loading(modifier: Modifier = Modifier) {
+fun Loading(
+    modifier: Modifier = Modifier,
+    text: String
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Detecting Gesture...",
+            text = text,
             fontSize = 30.sp // Use a TextUnit value to specify the font size
         )
     }

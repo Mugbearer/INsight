@@ -1,30 +1,26 @@
 package com.example.insight.presentation.ui.screens.assign_preferred_app
 
-import android.content.Context
-import android.speech.tts.TextToSpeech
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import com.example.insight.presentation.ui.shared.App
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.util.Locale
 
 data class AssignPreferredAppUiState(
-    val installedApps: List<App> = listOf(),
-    val indexOfSelectedApp: Int? = null
+    val installedApps: MutableList<App> = mutableListOf(),
+    val indexOfSelectedApp: Int? = null,
+    val isLoading: Boolean = true
 )
 
 class AssignPreferredAppViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(AssignPreferredAppUiState())
     val uiState = _uiState.asStateFlow()
 
-    private lateinit var textToSpeech: TextToSpeech
-
     fun setInstalledApps(installedApps: List<App>) {
         _uiState.update { currentState ->
             currentState.copy(
-                installedApps = installedApps
+                installedApps = installedApps as MutableList<App>
             )
         }
     }
@@ -38,7 +34,7 @@ class AssignPreferredAppViewModel : ViewModel() {
         }
     }
 
-    fun selectNextApp() {
+    fun selectNextAppAndReturnAppName(): String {
         val newIndex = when (val oldIndex: Int? = uiState.value.indexOfSelectedApp) {
             null -> {
                 0
@@ -52,9 +48,11 @@ class AssignPreferredAppViewModel : ViewModel() {
         }
 
         setIndexOfSelectedApp(newIndex)
+
+        return uiState.value.installedApps[uiState.value.indexOfSelectedApp!!].appName
     }
 
-    fun selectPreviousApp() {
+    fun selectPreviousAppAndReturnAppName(): String {
         val maxIndex: Int = uiState.value.installedApps.size - 1
         val newIndex = when (val oldIndex: Int? = uiState.value.indexOfSelectedApp) {
             null -> maxIndex
@@ -63,47 +61,15 @@ class AssignPreferredAppViewModel : ViewModel() {
         }
 
         setIndexOfSelectedApp(newIndex)
+
+        return uiState.value.installedApps[uiState.value.indexOfSelectedApp!!].appName
     }
 
-    fun initTextToSpeech(context: Context) {
-        textToSpeech = TextToSpeech(
-            context
-        ) {
-            if (it == TextToSpeech.SUCCESS) {
-                textToSpeech.let { txtToSpeech ->
-                    txtToSpeech.language = Locale.US
-                    txtToSpeech.setSpeechRate(0.8f)
-                    txtToSpeech.speak(
-                        "Currently fetching your list of apps, please wait.",
-                        TextToSpeech.QUEUE_ADD,
-                        null,
-                        null
-                    )
-                }
-            }
+    fun setIsLoading(isLoading: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                isLoading = isLoading
+            )
         }
-    }
-
-    fun speakSelectedApp() {
-        speakTextToSpeech(
-            uiState.value.installedApps[uiState.value.indexOfSelectedApp!!].toString()
-        )
-    }
-
-    fun speakTextToSpeech(message: String) {
-        textToSpeech.speak(
-            message,
-            TextToSpeech.QUEUE_ADD,
-            null,
-            null
-        )
-    }
-
-    fun stopTextToSpeech() {
-        textToSpeech.stop()
-    }
-
-    fun shutdownTextToSpeech() {
-        textToSpeech.shutdown()
     }
 }

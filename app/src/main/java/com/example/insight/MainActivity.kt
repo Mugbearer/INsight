@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.insight.presentation.theme.INsightTheme
 import com.example.insight.presentation.ui.shared.InsightApp
+import com.example.insight.presentation.ui.shared.InsightContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

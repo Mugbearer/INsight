@@ -15,6 +15,6 @@
         Would you like to repeat the instructions? Hold for yes, double tap for no.
     </string>
     <string name="control_instructions">
-        In choosing your preferred app, tap to navigate to the next app. Double tap to navigate to the previous app. Press and hold to assign the currently selected app as your preferred app.
+        Your installed apps have been fetched. In choosing your preferred app, tap to navigate to the next app. Double tap to navigate to the previous app. Press and hold to assign the currently selected app as your preferred app.
     </string>
 </resources>

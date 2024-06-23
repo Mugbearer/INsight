@@ -25,38 +25,15 @@ import java.util.Locale
 @Composable
 fun TutorialScreen(
     modifier: Modifier = Modifier,
+    speakTextToSpeech: (String) -> Unit,
+    stopTextToSpeech: () -> Unit,
     navigateToDrawingScreen: () -> Unit
 ) {
-    val context: Context = LocalContext.current
-
     val instructions: String =  stringResource(id = R.string.tutorial)
 
-    lateinit var textToSpeech: TextToSpeech
-
     LaunchedEffect(Unit) {
-        textToSpeech = TextToSpeech(
-            context
-        ) {
-            if (it == TextToSpeech.SUCCESS) {
-                textToSpeech.let { txtToSpeech ->
-                    txtToSpeech.language = Locale.US
-                    txtToSpeech.setSpeechRate(0.8f)
-                    txtToSpeech.speak(
-                        instructions,
-                        TextToSpeech.QUEUE_ADD,
-                        null,
-                        null
-                    )
-                }
-            }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            textToSpeech.stop()
-            textToSpeech.shutdown()
-        }
+        stopTextToSpeech()
+        speakTextToSpeech(instructions)
     }
 
     Column(
@@ -64,18 +41,12 @@ fun TutorialScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
-                        Log.d("onDoubleTap","onDoubleTap")
-                        textToSpeech.stop() // Stop TTS on double tap
+                        stopTextToSpeech()
                         navigateToDrawingScreen()
                     },
                     onLongPress = {
-                        Log.d("onLongPress","onLongPress")
-                        textToSpeech.speak(
-                            instructions,
-                            TextToSpeech.QUEUE_ADD,
-                            null,
-                            null
-                        )
+                        stopTextToSpeech()
+                        speakTextToSpeech(instructions)
                     }
                 )
             },
